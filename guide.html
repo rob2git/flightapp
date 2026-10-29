@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flightapp user guide</title>
+<meta name="description" content="How to track flights with Flightapp: adding flights, reading cards, connecting a data provider and managing refreshes.">
+<meta name="theme-color" content="#e9edf1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0f14" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preload" href="fonts/barlow-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <h1 class="brand"><a href="index.html">Flightapp</a></h1>
+    <span class="net">User guide</span>
+    <div class="bar-actions">
+      <a class="btn" href="index.html">Back to Flightapp</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap guide">
+  <nav class="toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ol>
+      <li><a href="#start">Getting started</a></li>
+      <li><a href="#add">Adding a flight</a></li>
+      <li><a href="#card">Reading a flight card</a></li>
+      <li><a href="#status">What the status labels mean</a></li>
+      <li><a href="#future">Flights in the future</a></li>
+      <li><a href="#maps">Maps</a></li>
+      <li><a href="#providers">Connecting real data: providers and keys</a></li>
+      <li><a href="#refresh">Refreshing and saving API calls</a></li>
+      <li><a href="#install">Installing and using it offline</a></li>
+      <li><a href="#privacy">Privacy and where things are stored</a></li>
+      <li><a href="#trouble">Troubleshooting</a></li>
+    </ol>
+  </nav>
+
+  <section class="gsec" id="start">
+    <h2>Getting started</h2>
+    <p>Flightapp shows live status for the flights you choose to track: gate and terminal, delays, estimated and actual times, how far along the flight is, and a map once it is in the air.</p>
+    <p>The first time you open it, it runs in <strong>Demo mode</strong> with four simulated flights, so you can see how the cards behave. Nothing is sent anywhere in Demo mode. The simulated times are set relative to the moment you first opened the app.</p>
+    <p>To see real flights, you need a data provider and a key (see <a href="#providers">Connecting real data</a>). Open <strong>Settings</strong> (the sliders icon in the top bar), pick a provider, paste your key and tap <strong>Save</strong>. The example flights are removed when you switch to a real provider, and your own flights are looked up again.</p>
+  </section>
+
+  <section class="gsec" id="add">
+    <h2>Adding a flight</h2>
+    <p>Tap <strong>Track flight</strong> and fill in four things. Together they pick out exactly one flight.</p>
+    <ul>
+      <li><strong>Flight number:</strong> the airline code and number, such as <code>BA286</code> or <code>BA 286</code>. Use the code printed on the ticket (up to 4 digits).</li>
+      <li><strong>Departure date:</strong> the date the flight leaves, <em>in the departure airport's local time</em>. For a late-night departure, use the date shown at the airport you leave from, not the date where you are.</li>
+      <li><strong>From and To:</strong> the 3-letter IATA airport codes, such as <code>SFO</code> or <code>LHR</code>. Typing shows suggestions for the airports the app knows.</li>
+    </ul>
+    <p>A number with stops (for example one flight number that goes A to B to C) is shared by every leg. The two airports tell the app which leg you mean, so enter the airports for your own leg.</p>
+    <p>Flight numbers are reused day after day, which is why the date matters. If you try to add the same flight twice, the app tells you that you are already tracking it.</p>
+    <p>To remove a flight, open <strong>Details</strong> on its card and tap <strong>Remove</strong>. <strong>Settings > Remove all flights</strong> clears the whole list (tap twice to confirm).</p>
+  </section>
+
+  <section class="gsec" id="card">
+    <h2>Reading a flight card</h2>
+    <p>From top to bottom, each card shows:</p>
+    <ul>
+      <li><strong>Header:</strong> the flight number, the airline and date, and the <strong>status label</strong> on the right (see below).</li>
+      <li><strong>Route:</strong> the two airport codes with their cities. If a city is not known, the airport's name is shown instead. A dashed arc joins them, with a small plane partway along it while the flight is in the air.</li>
+      <li><strong>Departure and arrival tiles:</strong> the time in each airport's own local time, shown on flip-board style tiles, with the date and time zone underneath.
+        <ul>
+          <li>The small label above the time says whether it is <em>Scheduled</em>, <em>Estimated</em>, or an actual time (<em>Departed</em> or <em>Landed</em>).</li>
+          <li>If the time has moved, the original is shown as "was" with the old time struck through, plus a coloured chip such as <em>+25 min</em> (late), <em>10 min early</em> or <em>On time</em>.</li>
+          <li>A small <em>+1</em> next to an arrival time means it lands on the next calendar day (local time at the destination).</li>
+          <li>Terminal, gate and (for arrivals) baggage belt appear when the provider has them. Before that you see "Terminal and gate not published yet". Airlines often assign gates only a few hours before departure.</li>
+        </ul>
+      </li>
+      <li><strong>Summary line:</strong> for example "Departs in 1 h 35 min", "Lands in 5 h 30 min, 52% of the way" or "Landed 40 min ago".</li>
+      <li><strong>Map:</strong> a collapsible section for flights that are in the air or have landed (see <a href="#maps">Maps</a>).</li>
+      <li><strong>Details:</strong> aircraft type and registration, distance, altitude, ground speed, scheduled block time (gate to gate), the data source, the time of the last update, and the <strong>Refresh</strong> and <strong>Remove</strong> buttons. Altitude and ground speed need a live position, so they show "Not in flight" otherwise.</li>
+    </ul>
+    <p>The cards are listed by departure time, earliest first. A landed or cancelled flight keeps its place for 24 hours after arrival, then moves to the bottom of the list, most recent first. The line above the cards counts your flights, how many are in the air or waiting, and when the next one departs.</p>
+  </section>
+
+  <section class="gsec" id="status">
+    <h2>What the status labels mean</h2>
+    <p>The label combines what the provider reports with the actual times, so it will not say "Departed" while the arrival card says "Landed". Delays of 15 minutes or more turn the label orange.</p>
+    <div class="tablewrap">
+      <table class="gtable">
+        <thead><tr><th>Label</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill gp ok">On schedule</span></td><td>Not left yet and running on time (less than 15 minutes late).</td></tr>
+          <tr><td><span class="pill gp ok">Check-in open</span> <span class="pill gp ok">Boarding</span></td><td>Reported by the provider before departure, when it has that information. Boarding pulses on the card.</td></tr>
+          <tr><td><span class="pill gp late">Delayed</span></td><td>Not left yet, and the expected departure is 15 minutes or more after the scheduled time.</td></tr>
+          <tr><td><span class="pill gp air">In the air</span></td><td>The aircraft has left. The route arc shows progress.</td></tr>
+          <tr><td><span class="pill gp late">In the air, late</span> <span class="pill gp late">Approaching, late</span></td><td>In flight, and expected to arrive 15 minutes or more after the scheduled time.</td></tr>
+          <tr><td><span class="pill gp air">Approaching</span></td><td>Within about 25 minutes of landing.</td></tr>
+          <tr><td><span class="pill gp done">Landed</span></td><td>The flight has arrived. Its map shows the route and the baggage belt appears when known.</td></tr>
+          <tr><td><span class="pill gp bad">Cancelled</span></td><td>The airline cancelled the flight.</td></tr>
+          <tr><td><span class="pill gp late">Diverted</span></td><td>The flight is going to a different airport. Check the airline for the new destination.</td></tr>
+          <tr><td><span class="pill gp done">Status unknown</span></td><td>The provider returned a flight but no usable status.</td></tr>
+          <tr><td><span class="pill gp wait">Not tracking yet</span> <span class="pill gp wait">Starts tomorrow</span></td><td>A saved flight waiting for its date (see <a href="#future">Flights in the future</a>).</td></tr>
+          <tr><td><span class="pill gp done">Checking</span> <span class="pill gp done">No data</span></td><td>The first lookup is under way, or it failed and there is nothing to show yet. A message on the card says why.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="gsec" id="future">
+    <h2>Flights in the future</h2>
+    <p>You can add a flight well before its day. It is saved, and the card says <strong>Tracking starts</strong> followed by the date. <strong>No lookups are made until that date begins</strong>, so a flight added weeks ahead uses none of your plan's quota.</p>
+    <p>"Begins" means 00:00 on the departure date in the departure airport's time zone. If the airport is not in the app's built-in list, your device's time zone is used. At that moment the app looks the flight up once, and the card turns into a normal one. Tapping refresh on a waiting card does nothing, because the app will not call the provider before then.</p>
+    <p>After that first lookup, updates follow the rules in <a href="#refresh">Refreshing and saving API calls</a>.</p>
+  </section>
+
+  <section class="gsec" id="maps">
+    <h2>Maps</h2>
+    <p>Once a flight is in the air or has landed, its card gets a <strong>Map</strong> section. It is open by default while the flight is airborne, and the app remembers whether you opened or closed it for as long as the app stays open.</p>
+    <ul>
+      <li>The <strong>dashed line</strong> is the planned route (the shortest path over the Earth, which looks curved on a flat map).</li>
+      <li>The <strong>solid line</strong> is the part already flown, and the plane marks where the aircraft is.</li>
+      <li>The caption says where the position came from: the provider, or "estimated from the schedule" when no live position is available. An estimated position moves along the route as time passes.</li>
+    </ul>
+    <p>The map is drawn by the app itself, so it works offline and needs no map service. Three things to know:</p>
+    <ul>
+      <li>The map needs both airports to be in the app's built-in list of about 140 major airports. If one is missing, that flight simply has no map.</li>
+      <li>With <strong>FlightAware</strong>, the aircraft sits at its last reported position, and the solid line runs straight from the origin to the aircraft rather than the exact path. This saves one lookup per refresh.</li>
+      <li>With <strong>AeroDataBox</strong> and <strong>AviationStack</strong>, the aircraft sits at the position the provider reports. They do not supply a flown path, and some plans give no live position at all.</li>
+    </ul>
+  </section>
+
+  <section class="gsec" id="providers">
+    <h2>Connecting real data: providers and keys</h2>
+    <p>Flightapp does not have its own flight data. It asks a flight-data provider that you sign up with, using <strong>your own key</strong>. Pick one in Settings. Each provider keeps its own key and proxy address in the app, so you can switch back and forth without retyping.</p>
+
+    <div class="tablewrap">
+      <table class="gtable">
+        <thead><tr><th>Provider</th><th>How it finds a flight</th><th>What you get</th><th>Limits to know</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Demo (simulated)</strong></td><td>Works out times from the flight details</td><td>Everything on the card, invented but consistent. Estimated map positions.</td><td>No key, nothing is sent. Updates every minute.</td></tr>
+          <tr><td><strong>AeroDataBox via RapidAPI</strong></td><td>Flight number and local date</td><td>Gates, terminals, baggage belt, aircraft and, depending on plan, a live position.</td><td>Your RapidAPI plan sets the monthly quota and which features you get.</td></tr>
+          <tr><td><strong>AeroDataBox via API.Market</strong></td><td>Flight number and local date</td><td>The same AeroDataBox data, bought through a different marketplace.</td><td>Separate key and plan from the RapidAPI one.</td></tr>
+          <tr><td><strong>FlightAware AeroAPI</strong></td><td>Flight number and date</td><td>Gate, runway and gate times, terminals, baggage claim, last reported position.</td><td>Only flights from the last 10 days to 2 days ahead. Usage is counted per request, and each refresh costs one.</td></tr>
+          <tr><td><strong>AviationStack</strong></td><td>Flight number, airports and date</td><td>Times, status, gates and terminals where published.</td><td>Plans differ in monthly requests and in which date lookups they allow. A date outside your plan may come back empty.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Which one should I choose?</h3>
+    <ul>
+      <li><strong>Just trying it:</strong> stay in Demo mode.</li>
+      <li><strong>Richest card (gates, baggage, aircraft):</strong> AeroDataBox or FlightAware.</li>
+      <li><strong>Lowest cost to start:</strong> compare each provider's current free or entry plan. Offers change, so check their sites for today's quotas and prices.</li>
+      <li><strong>Flights well in advance:</strong> any provider works, because Flightapp waits for the day before it makes a request. FlightAware itself only answers up to 2 days ahead.</li>
+    </ul>
+
+    <h3>Getting a key</h3>
+    <p>The steps are similar for each provider. Sign-up pages and plan names change, so use the provider's own instructions for the details.</p>
+    <ol class="steps">
+      <li>Create an account with the provider and choose a plan. Subscribe to the specific API named below if the provider asks.</li>
+      <li>Copy the key it gives you.</li>
+      <li>In Flightapp, open Settings, pick the same provider, paste the key into <strong>API key</strong> and tap <strong>Save</strong>.</li>
+    </ol>
+    <ul>
+      <li><strong>AeroDataBox via RapidAPI:</strong> go to <a href="https://rapidapi.com" target="_blank" rel="noopener">rapidapi.com</a>, search for "AeroDataBox", subscribe, and copy your RapidAPI key.</li>
+      <li><strong>AeroDataBox via API.Market:</strong> go to <a href="https://api.market" target="_blank" rel="noopener">api.market</a>, find AeroDataBox, subscribe, and copy your key.</li>
+      <li><strong>FlightAware AeroAPI:</strong> go to <a href="https://www.flightaware.com" target="_blank" rel="noopener">flightaware.com</a>, search the site for "AeroAPI", choose a plan, and create a key in the AeroAPI portal.</li>
+      <li><strong>AviationStack:</strong> go to <a href="https://aviationstack.com" target="_blank" rel="noopener">aviationstack.com</a>, sign up and copy your access key.</li>
+    </ul>
+    <p>The app's requests go over a secure (HTTPS) connection. If a provider refuses one for your plan, the card says so.</p>
+
+    <h3>The proxy address (optional)</h3>
+    <p>Some providers or plans do not allow requests straight from a web page. The sign is the message <em>"Could not reach the provider"</em> even though your key is right and you are online. The fix is a small relay, called a proxy, which you put in <strong>Settings > Proxy address</strong>. The project's README explains how to set one up (the file is <code>proxy/worker.js</code>). Leave the box empty otherwise.</p>
+
+    <h3>What changes when you switch providers</h3>
+    <p>When you save a different provider, key or proxy, the app clears the stored statuses and looks every flight up again once. Flights in the future stay saved and still wait for their date. The built-in example flights are removed when you move from Demo to a real provider.</p>
+  </section>
+
+  <section class="gsec" id="refresh">
+    <h2>Refreshing and saving API calls</h2>
+    <p>Most providers limit how many requests you can make, and some charge per request. Flightapp is built to use as few as possible, and by default it only updates when you ask.</p>
+
+    <h3>Ways to refresh yourself</h3>
+    <ul>
+      <li>The circular-arrow button in the top bar refreshes <strong>every</strong> flight.</li>
+      <li><strong>Refresh</strong> in a card's Details refreshes just that flight.</li>
+      <li>Adding a flight looks it up straight away (unless it is in the future).</li>
+      <li>Saving a change of provider, key or proxy looks all flights up again.</li>
+    </ul>
+
+    <h3>The "Refresh during a flight" setting</h3>
+    <div class="tablewrap">
+      <table class="gtable">
+        <thead><tr><th>Setting</th><th>What happens by itself</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Only when I tap refresh</strong> (default)</td><td>Nothing. After the first lookup, the app only calls the provider when you tap refresh. Best for saving quota.</td></tr>
+          <tr><td><strong>Every 2, 5 or 15 minutes</strong></td><td>That interval from 3 hours before departure until 1 hour after arrival. In the 24 hours before that, every 30 minutes. Earlier than that, every 6 hours.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>With either setting, the app stops refreshing by itself once a flight has landed, been cancelled or been diverted. You can still tap refresh at any time.</p>
+
+    <h3>When no request is made</h3>
+    <ul>
+      <li>Flights waiting for their date.</li>
+      <li>While the app is hidden or in the background, or while you are offline. When you come back, or the connection returns, it checks straight away.</li>
+      <li>The countdowns, progress arc and "in the air" estimates update every 20 seconds from information already on the device. That uses no requests.</li>
+    </ul>
+
+    <h3>If a lookup fails</h3>
+    <p>The card keeps the last good information and adds a note that it is showing the last known status.</p>
+    <ul>
+      <li><strong>Wrong or missing key:</strong> no automatic retries until you fix it in Settings.</li>
+      <li><strong>Flight not found, or quota reached:</strong> the app waits for your tap in "Only when I tap refresh" mode. With an interval set, it tries again after an hour.</li>
+      <li><strong>No answer or another error:</strong> it tries again after about 10 minutes.</li>
+    </ul>
+
+    <h3>Tips for staying within a quota</h3>
+    <ul>
+      <li>Keep the default, and refresh when you actually want to know.</li>
+      <li>Add flights ahead of time. Waiting flights cost nothing until their day.</li>
+      <li>Remove flights you no longer need. A tracked flight with an interval set keeps refreshing until it lands.</li>
+      <li>Use 15 minutes rather than 2 if you want automatic updates.</li>
+    </ul>
+  </section>
+
+  <section class="gsec" id="install">
+    <h2>Installing and using it offline</h2>
+    <p>Flightapp is a web app you can install so it opens like any other app, in its own window and with its own icon. The page needs to be served over HTTPS (or run from <code>localhost</code>).</p>
+    <ul>
+      <li><strong>iPhone or iPad (Safari):</strong> tap the Share button, then <strong>Add to Home Screen</strong>.</li>
+      <li><strong>Android (Chrome):</strong> open the menu and choose <strong>Install app</strong> (or <strong>Add to Home screen</strong>).</li>
+      <li><strong>Computer (Chrome or Edge):</strong> use the install icon at the right of the address bar, or the browser menu's <strong>Install</strong> option.</li>
+    </ul>
+    <p>Once it has loaded, the app opens without a connection. Offline, you see the last known status of each flight, and an <strong>Offline</strong> label appears in the top bar. Times, countdowns and estimated map positions keep moving, but live data returns only when you are back online.</p>
+    <p>If you ever see an old version, close and reopen the app once. It checks for a new version every time it loads.</p>
+  </section>
+
+  <section class="gsec" id="privacy">
+    <h2>Privacy and where things are stored</h2>
+    <ul>
+      <li>There is no Flightapp account. Your flights, settings and keys are stored <strong>in this browser</strong> on this device, and nowhere else.</li>
+      <li>Your key and flight details are sent <strong>only to the provider you chose</strong>. If you set a proxy address, the request passes through that proxy on its way to the provider.</li>
+      <li>The keys are stored as plain text in the browser's local storage. Anyone who can use this browser profile could find them, so avoid saving keys on shared computers.</li>
+      <li>Clearing the site's data in your browser removes your flights and keys. The same data is not shared between browsers or devices: each one has its own list.</li>
+      <li>In Demo mode nothing leaves the device.</li>
+    </ul>
+  </section>
+
+  <section class="gsec" id="trouble">
+    <h2>Troubleshooting</h2>
+    <div class="tablewrap">
+      <table class="gtable">
+        <thead><tr><th>What you see</th><th>What it usually means and what to do</th></tr></thead>
+        <tbody>
+          <tr><td>"Add your API key in Settings to get live data."</td><td>No key is saved for the provider you chose. Open Settings, paste the key and Save.</td></tr>
+          <tr><td>"The provider rejected your API key" or "rejected your access key"</td><td>The key is wrong, has extra spaces, or is for a different provider. Check it in Settings and make sure the provider shown matches the key.</td></tr>
+          <tr><td>"Access denied" (403) or "refused the secure (HTTPS) connection"</td><td>Your plan does not include this lookup or connection type. Check what the plan covers on the provider's site.</td></tr>
+          <tr><td>"Rate limit or monthly quota reached" or "quota reached"</td><td>You have used up your plan's requests for now. Wait, upgrade, or switch to "Only when I tap refresh" and refresh less.</td></tr>
+          <tr><td>"Could not reach the provider"</td><td>You are offline, the provider is down, or it does not accept requests straight from a web page. If your key is right and you are online, set up a proxy (see <a href="#providers">The proxy address</a>).</td></tr>
+          <tr><td>"No flight with this number was found for that date" (or similar)</td><td>Check the flight number and the date. The date must be the local departure date at the departure airport.</td></tr>
+          <tr><td>"... was found but not as SFO to LHR. Found: ..."</td><td>The flight exists on that date, but between different airports. The message lists what it found. Remove the flight and add it with the right airports.</td></tr>
+          <tr><td>"The closest match is on [another date]" (AviationStack)</td><td>Your plan may not include that date. Use a different provider, or a plan that allows date lookups.</td></tr>
+          <tr><td>"FlightAware only returns flights from the last 10 days" or "up to 2 days ahead"</td><td>AeroAPI's date window. For older flights, use another provider. For future ones, wait: Flightapp will look the flight up when its day begins.</td></tr>
+          <tr><td>The card shows "Terminal and gate not published yet"</td><td>Normal. Airlines usually assign gates a few hours before departure, and some providers do not supply them at all. Refresh closer to departure.</td></tr>
+          <tr><td>"Not assigned yet" under Aircraft, or "Not in flight" for altitude and speed</td><td>The provider has no aircraft or live position yet. Some plans never include a live position.</td></tr>
+          <tr><td>No Map section on a flight</td><td>Maps appear only for flights that are in the air or landed, and need both airports in the built-in list of about 140 airports.</td></tr>
+          <tr><td>The status looks out of date</td><td>Check the "Updated" time in Details, then tap Refresh. In "Only when I tap refresh" mode, the app does not update on its own.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="gfoot"><a class="btn btn-primary" href="index.html">Back to Flightapp</a><span>Build 12</span></p>
+</main>
+</body>
+</html>

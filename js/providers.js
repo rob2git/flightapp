@@ -48,7 +48,7 @@ async function getJson(url, headers = {}) {
     res = await fetch(url, { headers, signal: ctl.signal, cache: 'no-store' });
   } catch (e) {
     if (e.name === 'AbortError') throw new ProviderError('network', 'The provider took too long to answer.');
-    throw new ProviderError('network', 'Could not reach the provider. You may be offline, or the provider blocks requests from browsers (see README, "Proxy").');
+    throw new ProviderError('network', 'Could not reach the provider. You may be offline, or the provider blocks requests from browsers (see the User guide, "The proxy address").');
   } finally {
     clearTimeout(timer);
   }
