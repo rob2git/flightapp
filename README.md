@@ -1,5 +1,10 @@
 # Flightapp
 
+<img width="405" height="220" alt="image" src="https://github.com/user-attachments/assets/5d8ea29e-168b-4669-844f-3a2bab1bd67f" /> 
+<img width="515" height="215" alt="image" src="https://github.com/user-attachments/assets/3aa55225-0d49-44a3-aef5-26527a9d86b3" />
+<img width="272" height="221" alt="image" src="https://github.com/user-attachments/assets/2267c006-d815-46b9-913a-8a687f4a409e" />
+
+
 An installable web app (PWA) that tracks flights and shows live status: gate and terminal, delays, estimated and actual times, progress and landing countdown.
 
 Each flight is identified by **flight number + local departure date + departure airport + arrival airport**. The two airports pick the right leg when a number has stops.
