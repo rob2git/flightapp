@@ -15,14 +15,14 @@ To install it, host the folder on any static host (GitHub Pages, Netlify, Cloudf
 
 ## Live data
 
-The app opens in **Demo** mode with three simulated flights. For real data open Settings, choose a provider and paste your key:
+The app opens in **Demo** mode with four simulated flights. For real data open Settings, choose a provider and paste your key:
 
 | Provider | Notes |
 |---|---|
 | AeroDataBox via RapidAPI | Looks up by flight number and local date. Includes gate, terminal, baggage belt, aircraft, live position (plan permitting). |
 | AeroDataBox via API.Market | Same data, different marketplace and key. |
 | FlightAware AeroAPI | Looks up by flight number and date (last 10 days and next 2 days only). Gives gate times, runway times, gates, terminals, baggage claim and the last reported position. Each refresh costs one lookup. The flown path (a second lookup) is switched off, see [Re-enabling the AeroAPI flown path](#re-enabling-the-aeroapi-flown-path). |
-| AviationStack | Looks up by flight number, airports and date. The free plan has a small monthly request quota and may not allow date filters; the app retries without the date filter and matches the date itself. |
+| AviationStack | Looks up by flight number, airports and date. The free plan has a small monthly request quota but should be enough for tracking your family flights. |
 
 Keys and flights are stored in the browser's local storage and sent only to the provider.
 
