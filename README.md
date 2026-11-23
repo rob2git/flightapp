@@ -27,7 +27,7 @@ When behaviour changes (refresh rules, providers, status labels, error messages)
 - **Cards:** each flight is a card with the status pill, route arc, departure and arrival times (with gate, terminal and baggage belt when the provider has them), an ETA line, a **Map** section once the flight is in the air or landed, and a **Details** section (aircraft, distance, altitude, ground speed, scheduled block time, data source, last update, Refresh and Remove buttons).
 - **Order of the cards:** flights that have not finished are listed by departure time, earliest first. A landed or cancelled flight keeps its place for 24 hours after arrival, then drops to the bottom of the list, most recent first.
 - **Airport names:** about 140 major airports (including the major US ones) are built in with their city, name, time zone and location. For any other airport the app shows the city the provider returns, or the airport's name when there is no city.
-- **Future flights:** a flight whose departure date has not started yet is saved but makes no requests. Its card says tracking starts on that date. At 00:00 on the departure date (in the departure airport's time zone, or your device's time zone if the airport is not in the built-in list) the first lookup happens and the card becomes a normal one.
+- **Future flights:** a flight whose departure date has not started yet is saved, and the app makes **one preview lookup** of its schedule straight away (when the provider has it). The card keeps the "Not tracking yet" or "Starts tomorrow" label and shows the scheduled departure and arrival times, with the aircraft when known. Live tracking starts at 00:00 on the departure date (in the departure airport's time zone, or your device's time zone if the airport is not in the built-in list): the first live lookup happens then, replaces the preview and turns the card into a normal one. Until then the schedule only updates when you tap Refresh. If the provider has no schedule that far ahead (see the provider notes), the card says so and waits.
 - **Offline:** the app shell is cached, so it still opens offline and shows the last known status. An "Offline" label appears in the top bar.
 
 ## Demo mode
@@ -39,7 +39,7 @@ The app starts in **Demo** mode, with nothing sent anywhere. A banner says so an
 | BA286 | SFO to LHR | In the air, about halfway (left the gate about 5 hours ago) |
 | LH401 | FRA to JFK | Shown as Delayed: scheduled to leave in about 70 minutes but running 25 minutes late |
 | QF12 | LAX to SYD | Just landed (about 40 minutes ago) |
-| UA900 | SFO to LHR | Departs 18 days from now, so it shows the "tracking starts" card and makes no updates until then |
+| UA900 | SFO to LHR | Departs 18 days from now, so it shows the "Not tracking yet" card with its scheduled times, and goes live on that day |
 
 Flights you add while in Demo mode get simulated data too, with a departure time, duration and gate worked out from the flight details, so the same flight always looks the same. Demo flights update every minute and stop once they land or are cancelled, whatever refresh option you picked.
 
@@ -56,7 +56,9 @@ For real data open Settings, choose a provider and paste your key:
 | FlightAware AeroAPI | Looks up by flight number and date (last 10 days and next 2 days only). Gives gate times, runway times, gates, terminals, baggage claim and the last reported position. Each refresh costs one lookup. The flown path (a second lookup) is switched off, see [Re-enabling the AeroAPI flown path](#re-enabling-the-aeroapi-flown-path). |
 | AviationStack | Looks up by flight number, airports and date, always over HTTPS. The free plan has a small monthly request quota and may not allow date filters; the app retries without the date filter and matches the date itself. |
 
-Settings holds the provider, the API key, an optional proxy address and the refresh option. Each provider keeps its own key and proxy, so switching providers back and forth does not lose them. Saving after a change of provider, key or proxy clears the stored statuses and looks every flight up again once.
+How far ahead each provider can answer decides how useful the schedule preview is: FlightAware only answers up to 2 days ahead (the app does not even send a request beyond that, so nothing is used), AeroDataBox depends on how far ahead it has schedules, and on some AviationStack plans a future date is refused (one failed preview can use 2 requests, because the app retries without the date filter).
+
+Settings holds the provider, the API key, an optional proxy address and the refresh option. Each provider keeps its own key and proxy, so switching providers back and forth does not lose them. Saving after a change of provider, key or proxy clears the stored statuses and looks every flight up again once, including a preview lookup for each future flight.
 
 Keys and flights are stored in the browser's local storage (key `flightapp.v1`) and sent only to the provider. Clearing the site's data in the browser removes them.
 
@@ -72,27 +74,29 @@ There are two kinds of refresh: the ones you ask for, and the ones the app makes
 
 - **Top-bar refresh button:** refreshes every tracked flight at once.
 - **Refresh in a card's Details:** refreshes just that flight.
-- **Adding a flight:** looks it up straight away (unless its date has not started).
+- **Adding a flight:** looks it up straight away. For a future flight this is the one preview lookup of its schedule.
 - **Saving a change of provider, key or proxy in Settings:** looks every flight up again.
-- Flights waiting for their date make no request, even when you tap refresh. A flight whose lookup is already running is not started twice.
+- **Refresh on a future flight** (the card's button or the top-bar button) reloads its schedule preview. This is the only way a future flight is looked up after its first preview. A flight whose lookup is already running is not started twice.
 
 ### What the app does by itself
 
+Live tracking begins on the departure day. Before 00:00 on that date (in the departure airport's time zone) a saved flight gets one automatic preview lookup of its schedule when you save it, and after that only the lookups you ask for. The first live lookup then happens as soon as the app is open and visible, even in manual mode, and replaces the preview. Everything below applies from that point.
+
 While the app is open and visible, it checks every 30 seconds whether any flight is due. A flight is due when the time since its last attempt (successful or not) is longer than its wait. Flights are started 0.4 seconds apart. The wait depends on the **Refresh during a flight** setting:
 
-| Setting | After the first successful lookup |
+| Setting | After the first lookup |
 |---|---|
 | **Only when I tap refresh** (the default) | Never. Calls happen only when you tap, plus the one automatic lookup when a flight is first added or its date starts. |
-| Every 2, 5 or 15 minutes | That interval, from 3 hours before departure until 1 hour after arrival. In the 24 hours before that window: every 30 minutes. Earlier than that: every 6 hours. |
+| Every 5, 15 or 30 minutes | That interval, from 3 hours before departure until 1 hour after arrival. Outside that window every 30 minutes: earlier on the departure day, or for a flight still reported in the air more than an hour after its expected arrival. |
 
 In both cases it stops refreshing by itself once the flight has landed, been cancelled or been diverted. Departure and arrival here mean the actual time when there is one, then the estimate, then the schedule.
 
-Changing the setting later does not touch a saved choice: whatever is stored stays until you change it in Settings.
+The saved choice stays as stored, with one exception: the 2-minute option was removed, so a saved 2 minutes becomes 5 minutes the next time the app loads.
 
 ### When nothing is sent
 
 - The tab is hidden or the device is offline. When you come back to the tab, or the connection returns, the app checks straight away.
-- The flight is waiting for its date.
+- The flight is waiting for its date and has already had its preview lookup.
 - The countdowns, progress arc and "in the air" estimates tick every 20 seconds from data already stored. This is display only and uses no network.
 
 ### When a lookup fails
@@ -104,6 +108,7 @@ The card keeps its last good data and shows a message that it is the last known 
 | Bad or missing key | No automatic retries until you fix the key in Settings. |
 | Flight not found, or the plan's rate limit hit | Manual mode: waits for your tap. Otherwise retries after 1 hour. |
 | No answer or another error before any status was received | Retries after 10 minutes. |
+| The schedule preview of a future flight fails | Never retried by itself. The card shows a note and waits. A tap on Refresh tries again, and the first live lookup is made when the day starts. |
 
 This keeps usage low on metered plans.
 
@@ -132,7 +137,7 @@ The FlightAware adapter can draw the real path the aircraft flew, but that needs
 **To turn it back on** (three small edits):
 1. In `js/providers.js`, delete the leading `// ` from every line from `// FLOWN PATH START` to `// FLOWN PATH END` (leave the START and END marker lines themselves commented). Keep `let track = null;`.
 2. In `js/app.js`, in the `HINTS` text for `aeroapi`, change "Each refresh uses one lookup." back to "Each refresh of a flight in the air uses two lookups (status and flight path)."
-3. In `sw.js`, change the cache name (for example `flightapp-shell-v9` to `v10`) so installed copies pick up the new script, and update the FlightAware row in the provider table above.
+3. In `sw.js`, change the cache name (for example `flightapp-shell-v11` to `v12`) so installed copies pick up the new script, and update the FlightAware row in the provider table above.
 
 The track lookup is only made once the flight has `actual_off` or `actual_out`, so flights still at the gate or in the future are not affected. Track points are thinned to at most 250 before they are saved. If the track request fails, the status still shows and the map falls back to the planned route.
 

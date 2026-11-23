@@ -101,7 +101,7 @@
           <tr><td><span class="pill gp bad">Cancelled</span></td><td>The airline cancelled the flight.</td></tr>
           <tr><td><span class="pill gp late">Diverted</span></td><td>The flight is going to a different airport. Check the airline for the new destination.</td></tr>
           <tr><td><span class="pill gp done">Status unknown</span></td><td>The provider returned a flight but no usable status.</td></tr>
-          <tr><td><span class="pill gp wait">Not tracking yet</span> <span class="pill gp wait">Starts tomorrow</span></td><td>A saved flight waiting for its date (see <a href="#future">Flights in the future</a>).</td></tr>
+          <tr><td><span class="pill gp wait">Not tracking yet</span> <span class="pill gp wait">Starts tomorrow</span></td><td>A saved flight waiting for its date, with its scheduled times if the provider had them (see <a href="#future">Flights in the future</a>).</td></tr>
           <tr><td><span class="pill gp done">Checking</span> <span class="pill gp done">No data</span></td><td>The first lookup is under way, or it failed and there is nothing to show yet. A message on the card says why.</td></tr>
         </tbody>
       </table>
@@ -110,9 +110,11 @@
 
   <section class="gsec" id="future">
     <h2>Flights in the future</h2>
-    <p>You can add a flight well before its day. It is saved, and the card says <strong>Tracking starts</strong> followed by the date. <strong>No lookups are made until that date begins</strong>, so a flight added weeks ahead uses none of your plan's quota.</p>
-    <p>"Begins" means 00:00 on the departure date in the departure airport's time zone. If the airport is not in the app's built-in list, your device's time zone is used. At that moment the app looks the flight up once, and the card turns into a normal one. Tapping refresh on a waiting card does nothing, because the app will not call the provider before then.</p>
-    <p>After that first lookup, updates follow the rules in <a href="#refresh">Refreshing and saving API calls</a>.</p>
+    <p>You can add a flight well before its day. It is saved, and the card says <strong>Not tracking yet</strong> (or <strong>Starts tomorrow</strong>) with the date live tracking starts.</p>
+    <p>When you save it, the app makes <strong>one preview lookup</strong> and, if the provider already has the schedule, the card shows the scheduled departure and arrival times, the aircraft and the terminal where known. Gates are usually not published this early. A line in Details says when the schedule was loaded, because airlines do change schedules.</p>
+    <p><strong>After that, nothing is requested by itself until the departure date begins.</strong> That means 00:00 on the departure date in the departure airport's time zone (your device's time zone if the airport is not in the app's built-in list). Until then you can tap <strong>Refresh</strong> on the card to reload the schedule, and each tap is one lookup.</p>
+    <p>When the day begins, the app looks the flight up as soon as it is open (even in "Only when I tap refresh" mode). That live lookup replaces the preview and the card turns into a normal one. From then on, updates follow the rules in <a href="#refresh">Refreshing and saving API calls</a>.</p>
+    <p>If the provider has no schedule that far ahead, the card shows a short note saying so and keeps waiting. Nothing is retried by itself. Whether a preview works depends on the provider, see <a href="#providers">Connecting real data</a>.</p>
   </section>
 
   <section class="gsec" id="maps">
@@ -153,7 +155,7 @@
       <li><strong>Just trying it:</strong> stay in Demo mode.</li>
       <li><strong>Richest card (gates, baggage, aircraft):</strong> AeroDataBox or FlightAware.</li>
       <li><strong>Lowest cost to start:</strong> compare each provider's current free or entry plan. Offers change, so check their sites for today's quotas and prices.</li>
-      <li><strong>Flights well in advance:</strong> any provider works, because Flightapp waits for the day before it makes a request. FlightAware itself only answers up to 2 days ahead.</li>
+      <li><strong>Flights well in advance:</strong> any provider can track them, because live tracking only starts on the day. The schedule preview is another matter: FlightAware only answers up to 2 days ahead (the app sends no request beyond that, so nothing is used), AeroDataBox depends on how far ahead it has schedules, and some AviationStack plans refuse a future date.</li>
     </ul>
 
     <h3>Getting a key</h3>
@@ -186,7 +188,8 @@
     <ul>
       <li>The circular-arrow button in the top bar refreshes <strong>every</strong> flight.</li>
       <li><strong>Refresh</strong> in a card's Details refreshes just that flight.</li>
-      <li>Adding a flight looks it up straight away (unless it is in the future).</li>
+      <li>Adding a flight looks it up straight away. For a future flight, that is the one preview lookup of its schedule.</li>
+      <li><strong>Refresh</strong> on a future flight reloads its schedule preview.</li>
       <li>Saving a change of provider, key or proxy looks all flights up again.</li>
     </ul>
 
@@ -196,15 +199,16 @@
         <thead><tr><th>Setting</th><th>What happens by itself</th></tr></thead>
         <tbody>
           <tr><td><strong>Only when I tap refresh</strong> (default)</td><td>Nothing. After the first lookup, the app only calls the provider when you tap refresh. Best for saving quota.</td></tr>
-          <tr><td><strong>Every 2, 5 or 15 minutes</strong></td><td>That interval from 3 hours before departure until 1 hour after arrival. In the 24 hours before that, every 30 minutes. Earlier than that, every 6 hours.</td></tr>
+          <tr><td><strong>Every 5, 15 or 30 minutes</strong></td><td>That interval from 3 hours before departure until 1 hour after arrival. Outside that window it checks every 30 minutes: earlier on the departure day, or when a flight is still shown in the air more than an hour after it was due to land.</td></tr>
         </tbody>
       </table>
     </div>
+    <p><strong>Live tracking begins on the departure day.</strong> Before 00:00 on that date, a saved flight gets one preview lookup when you save it, and after that only the lookups you ask for with Refresh. The first live lookup happens as soon as the app is open on that day, and the settings above apply from then on.</p>
     <p>With either setting, the app stops refreshing by itself once a flight has landed, been cancelled or been diverted. You can still tap refresh at any time.</p>
 
     <h3>When no request is made</h3>
     <ul>
-      <li>Flights waiting for their date.</li>
+      <li>Flights waiting for their date, apart from their one preview lookup and any taps on Refresh.</li>
       <li>While the app is hidden or in the background, or while you are offline. When you come back, or the connection returns, it checks straight away.</li>
       <li>The countdowns, progress arc and "in the air" estimates update every 20 seconds from information already on the device. That uses no requests.</li>
     </ul>
@@ -220,9 +224,9 @@
     <h3>Tips for staying within a quota</h3>
     <ul>
       <li>Keep the default, and refresh when you actually want to know.</li>
-      <li>Add flights ahead of time. Waiting flights cost nothing until their day.</li>
+      <li>Add flights ahead of time. A waiting flight costs one lookup when you add it (the schedule preview) and nothing more until its day, unless you tap Refresh.</li>
       <li>Remove flights you no longer need. A tracked flight with an interval set keeps refreshing until it lands.</li>
-      <li>Use 15 minutes rather than 2 if you want automatic updates.</li>
+      <li>Use 30 minutes rather than 5 if you want automatic updates.</li>
     </ul>
   </section>
 
@@ -264,6 +268,7 @@
           <tr><td>"... was found but not as SFO to LHR. Found: ..."</td><td>The flight exists on that date, but between different airports. The message lists what it found. Remove the flight and add it with the right airports.</td></tr>
           <tr><td>"The closest match is on [another date]" (AviationStack)</td><td>Your plan may not include that date. Use a different provider, or a plan that allows date lookups.</td></tr>
           <tr><td>"FlightAware only returns flights from the last 10 days" or "up to 2 days ahead"</td><td>AeroAPI's date window. For older flights, use another provider. For future ones, wait: Flightapp will look the flight up when its day begins.</td></tr>
+          <tr><td>A future flight says "The schedule could not be loaded yet" and shows no times</td><td>The provider has no schedule that far ahead, or refused the request. This is normal for FlightAware more than 2 days out. Nothing is retried by itself. Tap Refresh to try again, or wait: live tracking starts on the departure day.</td></tr>
           <tr><td>The card shows "Terminal and gate not published yet"</td><td>Normal. Airlines usually assign gates a few hours before departure, and some providers do not supply them at all. Refresh closer to departure.</td></tr>
           <tr><td>"Not assigned yet" under Aircraft, or "Not in flight" for altitude and speed</td><td>The provider has no aircraft or live position yet. Some plans never include a live position.</td></tr>
           <tr><td>No Map section on a flight</td><td>Maps appear only for flights that are in the air or landed, and need both airports in the built-in list of about 140 airports.</td></tr>
@@ -273,7 +278,7 @@
     </div>
   </section>
 
-  <p class="gfoot"><a class="btn btn-primary" href="index.html">Back to Flightapp</a><span>Build 12</span></p>
+  <p class="gfoot"><a class="btn btn-primary" href="index.html">Back to Flightapp</a><span>Build 14</span></p>
 </main>
 </body>
 </html>

@@ -1,6 +1,6 @@
 // Caches the app shell so Flightapp opens offline. Flight data is never cached here:
 // API calls go to other origins and are left alone; the app keeps the last answer itself.
-const CACHE = 'flightapp-shell-v9';
+const CACHE = 'flightapp-shell-v11';
 const SHELL = [
   './', 'index.html', 'guide.html', 'styles.css', 'manifest.webmanifest',
   'js/app.js', 'js/map.js', 'js/land.js', 'js/providers.js', 'js/airports.js', 'js/util.js',
