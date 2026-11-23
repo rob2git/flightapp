@@ -29,13 +29,41 @@ export const PROVIDERS = {
 };
 
 export async function fetchFlight(spec, settings) {
-  switch (settings.provider) {
-    case 'adb_rapid':
-    case 'adb_market': return aeroDataBox(spec, settings);
-    case 'aviationstack': return aviationStack(spec, settings);
-    case 'aeroapi': return aeroApi(spec, settings);
-    default: return demoSnapshot(spec);
+  try {
+    switch (settings.provider) {
+      case 'adb_rapid':
+      case 'adb_market': return await aeroDataBox(spec, settings);
+      case 'aviationstack': return await aviationStack(spec, settings);
+      case 'aeroapi': return await aeroApi(spec, settings);
+      default: return demoSnapshot(spec);
+    }
+  } catch (e) {
+    throw await explainNetworkFailure(e, settings);
   }
+}
+
+/**
+ * A failed browser request carries no detail, so work out the likely cause from what can be checked:
+ * no proxy with a provider that refuses web pages (FlightAware), a proxy address that does not answer at all,
+ * or a proxy that answers but whose reply the browser refuses to hand over (CORS) or that is not set up.
+ */
+async function explainNetworkFailure(e, s) {
+  if (!(e instanceof ProviderError) || e.kind !== 'network' || !e.message.startsWith('Could not reach')) return e;
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return e;
+  if (!s.proxy) {
+    // FlightAware says AeroAPI does not support requests from a web page, so a plain failure there is that.
+    if (s.provider === 'aeroapi') return new ProviderError('network', 'FlightAware does not accept requests made straight from a web page, so AeroAPI needs a proxy address in Settings. See the User guide, "The proxy address".');
+    return e;
+  }
+  // A no-cors request resolves whenever something answers, whatever it says, and fails only when nothing can be reached.
+  let answers = false;
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 8000);
+  try { await fetch(s.proxy, { mode: 'no-cors', cache: 'no-store', signal: ctl.signal }); answers = true; } catch { /* nothing answered */ }
+  clearTimeout(timer);
+  return new ProviderError('network', answers
+    ? 'The proxy answered, but the browser would not accept its reply. In the Worker, check that ALLOW_ORIGIN is exactly the address you open this app at (such as https://flights.example.com, no slash at the end) and that UPSTREAM is set. See the User guide, "The proxy address".'
+    : 'Could not reach the proxy address. Check it for typos: it should start with https:// and look like https://name.yourname.workers.dev, with nothing after it.');
 }
 
 /* ---------- shared fetch ---------- */
